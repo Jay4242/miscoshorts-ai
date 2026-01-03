@@ -1,16 +1,26 @@
 import yt_dlp
 from moviepy import VideoFileClip
 import os
-import whisper
 import warnings
+import sys
 
 # own modules
-import cerebro_gemini as cerebro
+# Choose backend for cerebro (gemini or openai). Set CEREBRO_BACKEND env var to "gemini" or "openai".
+backend = os.getenv("CEREBRO_BACKEND", "openai").lower()
+if backend == "gemini":
+    import cerebro_gemini as cerebro
+elif backend == "openai":
+    import cerebro_openai as cerebro
+else:
+    raise ValueError(f"Unsupported CEREBRO_BACKEND: {backend}")
 import subtitulos
+import subtitulos_whisper
 
 warnings.filterwarnings("ignore")
 
-URL_VIDEO = "TU_URL_DE_VIDEO_AQUI" 
+# URL can be passed as a command‑line argument:
+#   python3 maker.py "https://youtube.com/..."
+URL_VIDEO = sys.argv[1] if len(sys.argv) > 1 else "TU_URL_DE_VIDEO_AQUI"
 NOMBRE_SALIDA = "short_con_subs.mp4"
 
 def descargar_video(url):
@@ -35,11 +45,7 @@ def main():
     video_path = descargar_video(URL_VIDEO)
     
     print("🔍 Transcribiendo audio para obtener tiempos...")
-    model = whisper.load_model("base")
-    resultado = model.transcribe(video_path)
-    with open("transcripcion_completa.txt", "w", encoding="utf-8") as f:
-        f.write(f"URL: {URL_VIDEO}\n")
-        f.write(resultado['text'])  
+    resultado = subtitulos_whisper.transcribe_and_save(video_path, URL_VIDEO)
     
     analisis = cerebro.encontrar_clip_viral(resultado['segments'])
     clip_data = parsear_respuesta_gemini(analisis)
