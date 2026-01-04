@@ -6,7 +6,7 @@ Automatically creates viral YouTube Shorts from long-form videos using AI analys
 ## Features
 
 - 🎥 Downloads YouTube videos automatically
-- 🔍 Transcribes audio using OpenAI Whisper
+- 🔍 Transcribes audio using Whisper (local or OpenAI‑compatible API)
 - 🤖 Analyzes content with Google Gemini to find viral segments
 - ✂️ Crops videos to vertical 9:16 format for Shorts
 - 📝 Generates automatic subtitles with styling
@@ -31,6 +31,8 @@ cd miscoshorts
 pip install -r requirements.txt
 ```
 
+> **Note:** The `cerebro_openai.py` backend works with any OpenAI‑compatible API (e.g., Ollama, LM Studio, llama.cpp). Set the `OPENAI_BASE_URL` environment variable to the appropriate endpoint (default `http://localhost:9090/v1`). Usually only the port changes (Ollama 11343, LM Studio 1234, llama‑cpp 8080).
+
 3. Install FFmpeg:
 ```bash
 # Ubuntu/Debian
@@ -46,6 +48,14 @@ brew install ffmpeg
 4. Set up your Google Gemini API key:
    - Get an API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
    - Update the `GEMINI_API_KEY` variable in `cerebro_gemini.py`
+
+5. (Optional) Configure OpenAI‑compatible API backend:
+   - Set the `OPENAI_BASE_URL` environment variable to your API endpoint (default `http://localhost:9090/v1`).
+   - Example endpoints:
+     - Ollama: `http://localhost:11343/v1`
+     - LM Studio: `http://localhost:1234/v1`
+     - llama.cpp: `http://localhost:8080/v1`
+   - If using the remote Whisper server, ensure `USE_WHISPER_API=true` and adjust `api_url` in `subtitulos_whisper.py`.
 
 ## Usage
 
@@ -112,6 +122,8 @@ The script uses `openai-whisper`. If you have the wrong whisper package:
 pip uninstall whisper
 pip install openai-whisper
 ```
+
+> **Tip:** To use a remote Whisper server, set `USE_WHISPER_API=true` (default) and point `api_url` in `subtitulos_whisper.py` to the server’s endpoint (e.g., `http://localhost:9191/inference`). The server should return SRT compatible with the script.
 
 ### Gemini API Issues
 - Make sure your API key is valid
