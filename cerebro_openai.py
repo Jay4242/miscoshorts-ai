@@ -2,6 +2,7 @@ import os
 import openai
 from openai import OpenAI
 import re
+import httpx
 
 # Base URL for OpenAI API (adjust as needed). Note: Ollama typically runs on port 11343, LMStudio on 1234, and llama.cpp's llama-server defaults to 8080.
 BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:9090/v1")
@@ -9,13 +10,13 @@ BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:9090/v1")
 # Configure OpenAI API key from environment variable
 api_key = os.getenv("OPENAI_API_KEY", "none")
 openai.api_key = api_key
-client = OpenAI(base_url=BASE_URL, api_key=api_key)
+client = OpenAI(base_url=BASE_URL, api_key=api_key, timeout=httpx.Timeout(7200))
 
 MODEL_NAME = "qwen3:30b"
 
 def encontrar_clip_viral(segmentos_whisper):
     """Consult OpenAI model to find the best viral short segment."""
-    print(f"✨ Consulting {MODEL_NAME} (with timestamps)...")
+    print(f"✨ Consultando a {MODEL_NAME} (con timestamps)...")
 
     # Accept either a list of segment dicts or an SRT string
     if isinstance(segmentos_whisper, str):
